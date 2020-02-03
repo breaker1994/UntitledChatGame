@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -67,6 +68,12 @@ public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.View
     @Override
     public void onBindViewHolder(ListAdapterChats.ViewHolder holder, int position) {
         ListItemChats item = objects.get(position);
+
+        //ViewHolder holderV = (ViewHolder) holder;
+
+        holder.title.setText(item.title);
+        holder.description.setText(item.description);
+
     }
 
     @Override
@@ -78,18 +85,13 @@ public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.View
     public void onRequestDisallowInterceptTouchEvent (boolean disallowIntercept){}
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        /*TextView title;
-        ImageView bookmarkItem;
-        FrameLayout tagLayout;*/
-        //Context ctx;
+        TextView title, description;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            /*title = itemView.findViewById(R.id.title);
-            bookmarkItem = itemView.findViewById(R.id.bookmarkItem);
-            tagLayout = itemView.findViewById(R.id.tagLayout);*/
-            //ctx = itemView.getContext();
+            title = itemView.findViewById(R.id.title);
+            description = itemView.findViewById(R.id.description);
         }
     }
 }
