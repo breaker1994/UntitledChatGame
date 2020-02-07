@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
+import com.trinarr.phonegameconcept.UI.ListItemMessage;
 import com.trinarr.phonegameconcept.UI.LogManager;
 
 public class DatabaseGame extends SQLiteAssetHelper {
@@ -31,7 +32,7 @@ public class DatabaseGame extends SQLiteAssetHelper {
         return c;
     }
 
-    public String getMessage(int lastMessageID) {
+    public ListItemMessage getMessage(int lastMessageID) {
         SQLiteDatabase db = getReadableDatabase();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
@@ -40,16 +41,18 @@ public class DatabaseGame extends SQLiteAssetHelper {
         qb.setTables(sqlTables);
         Cursor c = qb.query(db, null,"ID" + " = " + lastMessageID,null,null, null,null);
 
-        String answer = null;
+        ListItemMessage item = new ListItemMessage();
+
         if(c.getCount() > 0) {
             c.moveToFirst();
-            answer = c.getString(c.getColumnIndex("text"));
 
-            LogManager.log("answer  " + answer, this.getClass());
+            item.message = c.getString(c.getColumnIndex("text"));
+            item.actionType = c.getInt(c.getColumnIndex("action_type"));
+            item.actionID = c.getInt(c.getColumnIndex("action_ID"));
         }
 
         c.close();
-        return answer;
+        return item;
     }
 
     public int getFirstMessageID(int chatID) {
