@@ -93,9 +93,10 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
                 int chatID = chats.getInt(chats.getColumnIndex("ID"));
 
                 String name = db.getPeople(peopleID);
-                String lastMessage = db.getMessage(lastMessageID);
 
-                ListItemChats item = new ListItemChats(chatID, peopleID, name, lastMessage);
+                ListItemMessage itemMessage = db.getMessage(lastMessageID);
+
+                ListItemChats item = new ListItemChats(chatID, peopleID, name, itemMessage.message);
                 graphlistArray.add(item);
             }
             while (chats.moveToNext());
