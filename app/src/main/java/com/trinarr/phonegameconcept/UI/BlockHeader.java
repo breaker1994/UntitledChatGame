@@ -39,6 +39,10 @@ public class BlockHeader extends FrameLayout {
         toolbarHeader.setText(header);
     }
 
+    public void hideAvatar() {
+        findViewById(R.id.chatLogo).setVisibility(GONE);
+    }
+
     public void setCloseClass(Class backOpenClass) {
         this.backOpenClass = backOpenClass;
     }
