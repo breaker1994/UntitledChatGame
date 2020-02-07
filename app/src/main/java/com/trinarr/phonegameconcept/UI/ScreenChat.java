@@ -95,11 +95,33 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
 
     private void getStartMessage() {
         int firstMessageID = db.getFirstMessageID(chatID);
-        String text = db.getMessage(firstMessageID);
 
-        ListItemMessage item = new ListItemMessage(peopleName, text, ListItemMessage.TYPE_PERSON);
-        dbSave.addMessage(item, firstMessageID);
-        messages.add(item);
+        ListItemMessage itemMessage = db.getMessage(firstMessageID);
+        itemMessage.type = ListItemMessage.TYPE_PERSON;
+        itemMessage.name = peopleName;
+
+        dbSave.addMessage(itemMessage);
+        messages.add(itemMessage);
+    }
+
+    private void forceChat() {
+        LogManager.log("forceChat", this.getClass());
+
+        ListItemMessage item = messages.get(messages.size()-1);
+
+
+    }
+
+    public void initDialog() {
+        if(messages.size() == 0) {
+            getStartMessage();
+        }
+        else {
+            LogManager.log("Not first time! "+messages.size(), this.getClass());
+        }
+        listAdapterMessages.notifyDataSetChanged();
+
+        forceChat();
     }
 
     @Override
@@ -117,15 +139,5 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
         if(dbSave != null) {
             dbSave.close();
         }
-    }
-
-    public void initDialog() {
-        if(messages.size() == 0) {
-            getStartMessage();
-        }
-        else {
-            LogManager.log("Not first time! "+messages.size(), this.getClass());
-        }
-        listAdapterMessages.notifyDataSetChanged();
     }
 }
