@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.trinarr.phonegameconcept.R;
+import com.trinarr.phonegameconcept.UI.Database.DatabaseGame;
 
 import java.util.ArrayList;
 
@@ -21,7 +22,7 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
     private ArrayList<ListItemChats> graphlistArray = new ArrayList<>();
 
     private Cursor chats = null;
-    private GameDatabase db = null;
+    private DatabaseGame db = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,7 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
         parentLayout.addView(blockHeader, 0);
 
         blockHeader.setHeaderText("Чаты");
+        blockHeader.hideAvatar();
 
         RecyclerView graphList = findViewById(R.id.recycleView);
         ListAdapterChats graphListAdapter = new ListAdapterChats(this, graphList, graphlistArray, this);
@@ -81,7 +83,7 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
     }
 
     private void getChatsList() {
-        db = new GameDatabase(this);
+        db = new DatabaseGame(this);
         chats = db.getChats();
 
         if(chats.getCount()>0) {
@@ -91,7 +93,7 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
                 int chatID = chats.getInt(chats.getColumnIndex("ID"));
 
                 String name = db.getPeople(peopleID);
-                String lastMessage = db.getLastMessage(lastMessageID);
+                String lastMessage = db.getMessage(lastMessageID);
 
                 ListItemChats item = new ListItemChats(chatID, peopleID, name, lastMessage);
                 graphlistArray.add(item);
