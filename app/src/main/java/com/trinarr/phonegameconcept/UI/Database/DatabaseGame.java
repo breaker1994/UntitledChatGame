@@ -1,4 +1,4 @@
-package com.trinarr.phonegameconcept.UI;
+package com.trinarr.phonegameconcept.UI.Database;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -6,13 +6,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
+import com.trinarr.phonegameconcept.UI.LogManager;
 
-public class GameDatabase extends SQLiteAssetHelper {
+public class DatabaseGame extends SQLiteAssetHelper {
 
     private static final String DATABASE_NAME = "gameDB.db";
     private static final int DATABASE_VERSION = 1;
 
-    public GameDatabase(Context context) {
+    public DatabaseGame(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         setForcedUpgrade();
     }
@@ -30,7 +31,7 @@ public class GameDatabase extends SQLiteAssetHelper {
         return c;
     }
 
-    public String getLastMessage(int lastMessageID) {
+    public String getMessage(int lastMessageID) {
         SQLiteDatabase db = getReadableDatabase();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
@@ -49,6 +50,28 @@ public class GameDatabase extends SQLiteAssetHelper {
 
         c.close();
         return answer;
+    }
+
+    public int getFirstMessageID(int chatID) {
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+
+        String sqlTables = "chats";
+
+        qb.setTables(sqlTables);
+        Cursor c = qb.query(db, null,"ID" + " = " + chatID,null,null, null,null);
+
+        int firstMessageID = -1;
+
+        if(c.getCount() > 0) {
+            c.moveToFirst();
+            firstMessageID = c.getInt(c.getColumnIndex("first_message_ID"));
+
+            LogManager.log("firstMessageID  " + firstMessageID, this.getClass());
+        }
+
+        c.close();
+        return firstMessageID;
     }
 
     public String getPeople(int peopleID) {
