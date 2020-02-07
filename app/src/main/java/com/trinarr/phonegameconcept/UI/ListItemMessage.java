@@ -8,13 +8,8 @@ public class ListItemMessage {
 
     public int type;
 
-    ListItemMessage(String name, String message, int type) {
+    public ListItemMessage(String name, String message, int type) {
         this.name = name;
-        this.message = message;
-        this.type = type;
-    }
-
-    ListItemMessage(String message, int type) {
         this.message = message;
         this.type = type;
     }

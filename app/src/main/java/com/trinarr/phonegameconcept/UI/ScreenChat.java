@@ -3,7 +3,6 @@ package com.trinarr.phonegameconcept.UI;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -12,6 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.trinarr.phonegameconcept.R;
+import com.trinarr.phonegameconcept.UI.Database.DatabaseGame;
+import com.trinarr.phonegameconcept.UI.Database.DatabaseSaveHelper;
 
 import java.util.ArrayList;
 
@@ -19,13 +20,16 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
     private ArrayList<ListItemMessage> messages = new ArrayList<>();
     private ArrayList<ListItemAnswer> answers = new ArrayList<>();
 
-    private ListAdapterMessages listAdapter;
+    private ListAdapterMessages listAdapterMessages;
     private ListAdapterAnswers listAdapterAnswers;
 
     private Cursor chats = null;
-    private GameDatabase db = null;
+    private DatabaseGame db = null;
+    private DatabaseSaveHelper dbSave = null;
 
     private int chatID, peopleID;
+
+    private String peopleName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,25 +48,9 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
             return;
         }
 
-        db = new GameDatabase(this);
-        blockHeader.setHeaderText(db.getPeople(peopleID));
-
-        RecyclerView messageList = findViewById(R.id.recycleView);
-        listAdapter = new ListAdapterMessages(this, messageList, messages, this);
-        messageList.addOnItemTouchListener(listAdapter);
-        messageList.setAdapter(listAdapter);
-
-        //messageList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        messageList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-
-        /*messages.add(new ListItemMessage("Ivan S.", "Hey, u!", ListItemMessage.TYPE_PERSON));
-        messages.add(new ListItemMessage("Hey, u!", ListItemMessage.TYPE_MY));
-        messages.add(new ListItemMessage("Ivan S.", "Hey, u!", ListItemMessage.TYPE_PERSON));
-        messages.add(new ListItemMessage( "Hey, u!", ListItemMessage.TYPE_MY));
-        messages.add(new ListItemMessage("Ivan S.", "Hey, u!", ListItemMessage.TYPE_PERSON));
-        messages.add(new ListItemMessage( "Hey, u!", ListItemMessage.TYPE_MY));
-        messages.add(new ListItemMessage("Ivan S.", "Hey, u!", ListItemMessage.TYPE_PERSON));
-        messages.add(new ListItemMessage( "Hey, u!", ListItemMessage.TYPE_MY));*/
+        db = new DatabaseGame(this);
+        peopleName = db.getPeople(peopleID);
+        blockHeader.setHeaderText(peopleName);
 
         RecyclerView answersList = findViewById(R.id.chatVariantsList);
         listAdapterAnswers = new ListAdapterAnswers(this, answersList, answers, this);
@@ -76,6 +64,19 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
         //answers.add(new ListItemAnswer("Go home"));
         //answers.add(new ListItemAnswer("Go home"));
         //answers.add(new ListItemAnswer("Go home now!"));
+
+        dbSave = new DatabaseSaveHelper(this, "messages_"+chatID);
+        messages = dbSave.getAllMessages();
+
+        RecyclerView messageList = findViewById(R.id.recycleView);
+        listAdapterMessages = new ListAdapterMessages(this, messageList, messages, this);
+        messageList.addOnItemTouchListener(listAdapterMessages);
+        messageList.setAdapter(listAdapterMessages);
+
+        //messageList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        messageList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+        initDialog();
     }
 
     @Override
@@ -92,6 +93,15 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
         LogManager.log("onLongItemClick  "+position, this.getClass());
     }
 
+    private void getStartMessage() {
+        int firstMessageID = db.getFirstMessageID(chatID);
+        String text = db.getMessage(firstMessageID);
+
+        ListItemMessage item = new ListItemMessage(peopleName, text, ListItemMessage.TYPE_PERSON);
+        dbSave.addMessage(item, firstMessageID);
+        messages.add(item);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -103,5 +113,19 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
         if(db != null) {
             db.close();
         }
+
+        if(dbSave != null) {
+            dbSave.close();
+        }
+    }
+
+    public void initDialog() {
+        if(messages.size() == 0) {
+            getStartMessage();
+        }
+        else {
+            LogManager.log("Not first time! "+messages.size(), this.getClass());
+        }
+        listAdapterMessages.notifyDataSetChanged();
     }
 }
