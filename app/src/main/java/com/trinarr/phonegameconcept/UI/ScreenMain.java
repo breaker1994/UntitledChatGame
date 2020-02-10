@@ -15,11 +15,13 @@ import android.widget.LinearLayout;
 
 import com.trinarr.phonegameconcept.R;
 import com.trinarr.phonegameconcept.UI.Database.DatabaseGame;
+import com.trinarr.phonegameconcept.UI.Database.DatabaseSaveHelper;
 
 import java.util.ArrayList;
 
 public class ScreenMain extends AppCompatActivity implements ListAdapterChats.OnItemClickListener{
     private ArrayList<ListItemChats> graphlistArray = new ArrayList<>();
+    ListAdapterChats graphListAdapter;
 
     private Cursor chats = null;
     private DatabaseGame db = null;
@@ -37,7 +39,7 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
         blockHeader.hideAvatar();
 
         RecyclerView graphList = findViewById(R.id.recycleView);
-        ListAdapterChats graphListAdapter = new ListAdapterChats(this, graphList, graphlistArray, this);
+        graphListAdapter = new ListAdapterChats(this, graphList, graphlistArray, this);
 
         graphList.addOnItemTouchListener(graphListAdapter);
         graphList.setAdapter(graphListAdapter);
@@ -83,24 +85,56 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
     }
 
     private void getChatsList() {
+        LogManager.log("getChatsList", this.getClass());
+        graphlistArray.clear();
+
         db = new DatabaseGame(this);
         chats = db.getChats();
 
-        if(chats.getCount()>0) {
+        DatabaseSaveHelper dbSave;
+        if (chats.moveToFirst()) {
             do {
-                int lastMessageID = chats.getInt(chats.getColumnIndex("last_message_ID"));
+                //int lastMessageID = chats.getInt(chats.getColumnIndex("last_message_ID"));
                 int peopleID = chats.getInt(chats.getColumnIndex("people_ID"));
-                int chatID = chats.getInt(chats.getColumnIndex("ID"));
 
-                String name = db.getPeople(peopleID);
+                ListItemChats item = new ListItemChats();
+                item.chatID = chats.getInt(chats.getColumnIndex("ID"));
+                item.peopleID = peopleID;
+                item.title = db.getPeople(peopleID);
 
-                ListItemMessage itemMessage = db.getMessage(lastMessageID);
+                dbSave = new DatabaseSaveHelper(this, "messages_"+item.chatID);
+                ArrayList<ListItemMessage> messages = dbSave.getAllMessages();
+                if(messages.size()>0) {
+                    ListItemMessage listItemMessage = messages.get(messages.size()-1);
+                    if(listItemMessage.type == ListItemMessage.TYPE_MY) {
+                        item.description = "Вы: "+listItemMessage.message;
+                    }
+                    else {
+                        item.description = listItemMessage.message;
+                    }
+                }
+                else {
+                    int lastMessageID = chats.getInt(chats.getColumnIndex("first_message_ID"));
 
-                ListItemChats item = new ListItemChats(chatID, peopleID, name, itemMessage.message);
+                    ListItemMessage itemMessage = db.getMessage(lastMessageID);
+                    item.description = itemMessage.message;
+                }
+
                 graphlistArray.add(item);
             }
             while (chats.moveToNext());
         }
+
+        graphListAdapter.notifyDataSetChanged();
+        chats.close();
+    }
+
+    @Override
+    public void onResume() {
+        LogManager.log("onResume", this.getClass());
+        super.onResume();
+
+        getChatsList();
     }
 
     @Override
