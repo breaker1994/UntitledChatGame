@@ -6,8 +6,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
+import com.trinarr.phonegameconcept.UI.ListItemAnswer;
 import com.trinarr.phonegameconcept.UI.ListItemMessage;
 import com.trinarr.phonegameconcept.UI.LogManager;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class DatabaseGame extends SQLiteAssetHelper {
 
@@ -32,13 +37,67 @@ public class DatabaseGame extends SQLiteAssetHelper {
         return c;
     }
 
+    public ArrayList<ListItemAnswer> getAnswers(int nodeID) {
+        ArrayList<ListItemAnswer> answers = new ArrayList<>();
+
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+
+        String sqlTables = "nodes";
+        qb.setTables(sqlTables);
+
+        Cursor c = qb.query(db, null,"ID" + " = " + nodeID,null,null, null,null);
+        if(c.getCount() == 0) {
+            return answers;
+        }
+
+        c.moveToFirst();
+        String[] sAnswersIDs = c.getString(c.getColumnIndex("answer_IDs")).split(",");
+        LogManager.log("sAnswersIDs " + Arrays.toString(sAnswersIDs), this.getClass());
+
+        for(int i=0; i<sAnswersIDs.length; ++i) {
+            int answerID = Integer.parseInt(sAnswersIDs[i]);
+
+            ListItemAnswer itemAnswer = getAnswer(answerID);
+            LogManager.log("itemAnswer " + itemAnswer.message, this.getClass());
+            answers.add(itemAnswer);
+        }
+
+        c.close();
+        return answers;
+    }
+
+    public ListItemAnswer getAnswer(int answerID) {
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+
+        String sqlTables = "answers";
+        qb.setTables(sqlTables);
+
+        Cursor c = qb.query(db, null,"ID" + " = " + answerID,null,null, null,null);
+
+        ListItemAnswer item = new ListItemAnswer();
+
+        if(c.getCount() == 0) {
+            return item;
+        }
+
+        c.moveToFirst();
+
+        item.message = c.getString(c.getColumnIndex("text"));
+        item.actionID = c.getInt(c.getColumnIndex("next_message_ID"));
+
+        c.close();
+        return item;
+    }
+
     public ListItemMessage getMessage(int lastMessageID) {
         SQLiteDatabase db = getReadableDatabase();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         String sqlTables = "messages";
-
         qb.setTables(sqlTables);
+
         Cursor c = qb.query(db, null,"ID" + " = " + lastMessageID,null,null, null,null);
 
         ListItemMessage item = new ListItemMessage();
@@ -49,6 +108,7 @@ public class DatabaseGame extends SQLiteAssetHelper {
             item.message = c.getString(c.getColumnIndex("text"));
             item.actionType = c.getInt(c.getColumnIndex("action_type"));
             item.actionID = c.getInt(c.getColumnIndex("action_ID"));
+            item.messageID = lastMessageID;
         }
 
         c.close();
