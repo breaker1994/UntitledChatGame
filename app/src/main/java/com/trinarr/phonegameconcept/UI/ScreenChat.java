@@ -30,9 +30,12 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
     private int chatID, peopleID;
 
     private String peopleName = null;
+    private String myName = "Я";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LogManager.log("onCreate", this.getClass());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_chat);
 
@@ -53,17 +56,7 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
         blockHeader.setHeaderText(peopleName);
 
         RecyclerView answersList = findViewById(R.id.chatVariantsList);
-        listAdapterAnswers = new ListAdapterAnswers(this, answersList, answers, this);
-        answersList.addOnItemTouchListener(listAdapterAnswers);
-        answersList.setAdapter(listAdapterAnswers);
-
-        //messageList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         answersList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        //answers.add(new ListItemAnswer("Go home"));
-        //answers.add(new ListItemAnswer("Go home"));
-        //answers.add(new ListItemAnswer("Go home"));
-        //answers.add(new ListItemAnswer("Go home now!"));
 
         dbSave = new DatabaseSaveHelper(this, "messages_"+chatID);
         messages = dbSave.getAllMessages();
@@ -83,9 +76,33 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
     public void onItemClick(View view, int position) {
         LogManager.log("onItemClick  "+position, this.getClass());
 
-        //Intent intent = new Intent(this, ScreenChat.class);
-        //startActivity(intent);
-        // do whatever
+        String idName = getResources().getResourceName(view.getId());
+
+        if(idName.contains("blockMessage")) {
+            LogManager.log("click message "+idName, this.getClass());
+
+
+        }
+        else {
+            LogManager.log("click answer "+idName, this.getClass());
+
+            ListItemAnswer itemAnswer = answers.get(position);
+
+            ListItemMessage itemMessage = new ListItemMessage();
+            itemMessage.type = ListItemMessage.TYPE_MY;
+            //(itemMessage.name = myName;
+            itemMessage.message = itemAnswer.message;
+            itemMessage.actionType = ListItemMessage.ACTION_NEXT_MESSAGE;
+            itemMessage.actionID = itemAnswer.actionID;
+
+            dbSave.addMessage(itemMessage);
+            messages.add(itemMessage);
+
+            getNextMessage(itemAnswer.actionID);
+
+            answers.clear();
+            listAdapterAnswers.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -93,33 +110,58 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
         LogManager.log("onLongItemClick  "+position, this.getClass());
     }
 
-    private void getStartMessage() {
-        int firstMessageID = db.getFirstMessageID(chatID);
-
-        ListItemMessage itemMessage = db.getMessage(firstMessageID);
+    private void getNextMessage(int messageID) {
+        ListItemMessage itemMessage = db.getMessage(messageID);
         itemMessage.type = ListItemMessage.TYPE_PERSON;
         itemMessage.name = peopleName;
 
         dbSave.addMessage(itemMessage);
         messages.add(itemMessage);
+
+        listAdapterMessages.notifyDataSetChanged();
     }
 
     private void forceChat() {
-        LogManager.log("forceChat", this.getClass());
-
         ListItemMessage item = messages.get(messages.size()-1);
 
+        LogManager.log("forceChat messages.size "+messages.size(), this.getClass());
+        LogManager.log("forceChat "+item.messageID +" "+item.actionID+" "+item.message, this.getClass());
 
+        if (item.messageID == item.actionID) {
+            LogManager.log("last message!", this.getClass());
+            return;
+        }
+
+
+        if(item.actionType == ListItemMessage.ACTION_NEXT_MESSAGE) {
+            getNextMessage(item.actionID);
+            forceChat();
+        }
+        else {
+            createAnswers(item.actionID);
+        }
+    }
+
+    public void createAnswers(int actionID) {
+        LogManager.log("createAnswers", this.getClass());
+
+        answers = db.getAnswers(actionID);
+
+        RecyclerView answersList = findViewById(R.id.chatVariantsList);
+        listAdapterAnswers = new ListAdapterAnswers(this, answersList, answers, this);
+        answersList.addOnItemTouchListener(listAdapterAnswers);
+        answersList.setAdapter(listAdapterAnswers);
+        listAdapterAnswers.notifyDataSetChanged();
     }
 
     public void initDialog() {
         if(messages.size() == 0) {
-            getStartMessage();
+            LogManager.log("get First Message", this.getClass());
+            getNextMessage(db.getFirstMessageID(chatID));
         }
         else {
             LogManager.log("Not first time! "+messages.size(), this.getClass());
         }
-        listAdapterMessages.notifyDataSetChanged();
 
         forceChat();
     }
