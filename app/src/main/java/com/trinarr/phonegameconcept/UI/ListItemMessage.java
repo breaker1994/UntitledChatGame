@@ -9,16 +9,9 @@ public class ListItemMessage {
 
     public String name, message;
 
-    public int type, actionType, actionID;
+    public int type, actionType, actionID, messageID;
 
     public ListItemMessage() {
-
+        this.messageID = -1;
     }
-
-    /*public ListItemMessage(String name, String message, int type, int actionType) {
-        this.name = name;
-        this.message = message;
-        this.type = type;
-        this.actionType = actionType;
-    }*/
 }
