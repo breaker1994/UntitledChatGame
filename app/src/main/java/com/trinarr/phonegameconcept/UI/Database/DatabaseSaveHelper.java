@@ -26,9 +26,10 @@ public class DatabaseSaveHelper extends SQLiteOpenHelper {
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE =
+                String CREATE_TABLE =
                 "CREATE TABLE " + databaseName + "("
                         + "ID" + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                        + "message_id" + " INTEGER NOT NULL, "
                         + "text" + " TEXT, "
                         + "name" + " TEXT, "
                         + "type" + " INTEGER NOT NULL, "
@@ -55,6 +56,7 @@ public class DatabaseSaveHelper extends SQLiteOpenHelper {
         values.put("name", message.name);
         values.put("action_type", message.actionType);
         values.put("action_ID", message.actionID);
+        values.put("message_id", message.messageID);
 
         db.insert(databaseName, null, values);
         db.close();
@@ -64,7 +66,7 @@ public class DatabaseSaveHelper extends SQLiteOpenHelper {
         ArrayList<ListItemMessage> messages = new ArrayList<>();
 
         String selectQuery = "SELECT  * FROM " + databaseName + " ORDER BY " +
-                "ID" + " DESC";
+                "ID" + " ASC";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -77,6 +79,7 @@ public class DatabaseSaveHelper extends SQLiteOpenHelper {
                 message.type = cursor.getInt(cursor.getColumnIndex("type"));
                 message.actionType = cursor.getInt(cursor.getColumnIndex("action_type"));
                 message.actionID = cursor.getInt(cursor.getColumnIndex("action_ID"));
+                message.messageID = cursor.getInt(cursor.getColumnIndex("message_id"));
 
                 messages.add(message);
             }
