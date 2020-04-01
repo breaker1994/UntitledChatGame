@@ -11,8 +11,11 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.trinarr.phonegameconcept.R;
+import com.trinarr.phonegameconcept.Utils;
 
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.ViewHolder> implements RecyclerView.OnItemTouchListener  {
     private LayoutInflater inflater;
@@ -20,6 +23,7 @@ public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.View
     GestureDetector mGestureDetector;
 
     private ArrayList<ListItemChats> objects;
+    private Context context;
 
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
@@ -30,6 +34,7 @@ public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.View
         inflater = LayoutInflater.from(ctx);
         mListener = listener;
         objects = history;
+        this.context = ctx;
 
         mGestureDetector = new GestureDetector(ctx, new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -72,6 +77,8 @@ public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.View
         holder.title.setText(item.title);
         holder.description.setText(item.description);
 
+        holder.chatLogo.setImageDrawable(Utils.getAvatarDrawable(item.peopleID, context));
+
     }
 
     @Override
@@ -84,12 +91,15 @@ public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, description;
+        CircleImageView chatLogo;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             title = itemView.findViewById(R.id.title);
             description = itemView.findViewById(R.id.description);
+
+            chatLogo = itemView.findViewById(R.id.chatLogo);
         }
     }
 }

@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.trinarr.phonegameconcept.R;
+import com.trinarr.phonegameconcept.Utils;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class BlockHeader extends FrameLayout {
     Toolbar toolbar;
@@ -41,6 +44,11 @@ public class BlockHeader extends FrameLayout {
 
     public void hideAvatar() {
         findViewById(R.id.chatLogo).setVisibility(GONE);
+    }
+
+    public void setAvatar(int peopleID) {
+        CircleImageView chatLogo = findViewById(R.id.chatLogo);
+        chatLogo.setImageDrawable(Utils.getAvatarDrawable(peopleID, activity));
     }
 
     public void setCloseClass(Class backOpenClass) {
