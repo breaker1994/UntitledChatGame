@@ -51,7 +51,7 @@ public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.View
         View childView = view.findChildViewUnder(e.getX(), e.getY());
         if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
             mListener.onItemClick(childView, view.getChildAdapterPosition(childView));
-            return true;
+            //return true;
         }
         return false;
     }
@@ -68,8 +68,6 @@ public class ListAdapterChats extends RecyclerView.Adapter<ListAdapterChats.View
     @Override
     public void onBindViewHolder(ListAdapterChats.ViewHolder holder, int position) {
         ListItemChats item = objects.get(position);
-
-        //ViewHolder holderV = (ViewHolder) holder;
 
         holder.title.setText(item.title);
         holder.description.setText(item.description);

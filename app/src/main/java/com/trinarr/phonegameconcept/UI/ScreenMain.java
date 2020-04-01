@@ -1,6 +1,7 @@
 package com.trinarr.phonegameconcept.UI;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,15 +51,20 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
         getChatsList();
     }
 
-    @Override public void onItemClick(View view, int position) {
-        LogManager.log("onItemClick  "+position, this.getClass());
+    @Override public void onItemClick(View view, final int position) {
+        ViewCompat.postOnAnimationDelayed(view, new Runnable() {
+            @Override
+            public void run() {
+                LogManager.log("onItemClick  " + position, this.getClass());
 
-        ListItemChats item = graphlistArray.get(position);
+                ListItemChats item = graphlistArray.get(position);
 
-        Intent intent = new Intent(this, ScreenChat.class);
-        intent.putExtra("chatID", item.chatID);
-        intent.putExtra("peopleID", item.peopleID);
-        startActivity(intent);
+                Intent intent = new Intent(ScreenMain.this, ScreenChat.class);
+                intent.putExtra("chatID", item.chatID);
+                intent.putExtra("peopleID", item.peopleID);
+                startActivity(intent);
+            }
+        }, 50);
     }
 
     @Override public void onLongItemClick(View view, int position) {
