@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".UI.ScreenMain"
+            android:name="com.trinarr.phonegameconcept.UI.ScreenMain"
             android:screenOrientation="portrait"
             android:launchMode="singleTask">
             <intent-filter>
@@ -21,11 +21,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UI.ScreenChat"
+            android:name="com.trinarr.phonegameconcept.UI.ScreenChat"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
         <activity
-            android:name=".UI.ScreenNews"
+            android:name="com.trinarr.phonegameconcept.UI.ScreenNews"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
 
