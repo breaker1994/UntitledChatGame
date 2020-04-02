@@ -46,13 +46,13 @@ public class DatabaseGame extends SQLiteAssetHelper {
         String sqlTables = "nodes";
         qb.setTables(sqlTables);
 
-        Cursor c = qb.query(db, null,"ID" + " = " + nodeID,null,null, null,null);
+        Cursor c = qb.query(db, null,"id" + " = " + nodeID,null,null, null,null);
         if(c.getCount() == 0) {
             return answers;
         }
 
         c.moveToFirst();
-        String[] sAnswersIDs = c.getString(c.getColumnIndex("answer_IDs")).split(",");
+        String[] sAnswersIDs = c.getString(c.getColumnIndex("answer_ids")).split(",");
         LogManager.log("sAnswersIDs " + Arrays.toString(sAnswersIDs), this.getClass());
 
         for(int i=0; i<sAnswersIDs.length; ++i) {
@@ -74,7 +74,7 @@ public class DatabaseGame extends SQLiteAssetHelper {
         String sqlTables = "answers";
         qb.setTables(sqlTables);
 
-        Cursor c = qb.query(db, null,"ID" + " = " + answerID,null,null, null,null);
+        Cursor c = qb.query(db, null,"id" + " = " + answerID,null,null, null,null);
 
         ListItemAnswer item = new ListItemAnswer();
 
@@ -85,7 +85,7 @@ public class DatabaseGame extends SQLiteAssetHelper {
         c.moveToFirst();
 
         item.message = c.getString(c.getColumnIndex("text"));
-        item.actionID = c.getInt(c.getColumnIndex("next_message_ID"));
+        item.actionID = c.getInt(c.getColumnIndex("next_message_id"));
 
         c.close();
         return item;
@@ -98,7 +98,7 @@ public class DatabaseGame extends SQLiteAssetHelper {
         String sqlTables = "messages";
         qb.setTables(sqlTables);
 
-        Cursor c = qb.query(db, null,"ID" + " = " + lastMessageID,null,null, null,null);
+        Cursor c = qb.query(db, null,"id" + " = " + lastMessageID,null,null, null,null);
 
         ListItemMessage item = new ListItemMessage();
 
@@ -107,7 +107,17 @@ public class DatabaseGame extends SQLiteAssetHelper {
 
             item.message = c.getString(c.getColumnIndex("text"));
             item.actionType = c.getInt(c.getColumnIndex("action_type"));
-            item.actionID = c.getInt(c.getColumnIndex("action_ID"));
+            item.actionID = c.getInt(c.getColumnIndex("action_id"));
+
+            int index = c.getColumnIndex("attachment_id");
+            if(!c.isNull(index)) {
+                item.attachmentID = c.getInt(index);
+            }
+
+            index = c.getColumnIndex("attachment_type");
+            if(!c.isNull(index)) {
+                item.attachmentType = c.getInt(index);
+            }
             item.messageID = lastMessageID;
         }
 
@@ -122,13 +132,13 @@ public class DatabaseGame extends SQLiteAssetHelper {
         String sqlTables = "chats";
 
         qb.setTables(sqlTables);
-        Cursor c = qb.query(db, null,"ID" + " = " + chatID,null,null, null,null);
+        Cursor c = qb.query(db, null,"id" + " = " + chatID,null,null, null,null);
 
         int firstMessageID = -1;
 
         if(c.getCount() > 0) {
             c.moveToFirst();
-            firstMessageID = c.getInt(c.getColumnIndex("first_message_ID"));
+            firstMessageID = c.getInt(c.getColumnIndex("first_message_id"));
 
             LogManager.log("firstMessageID  " + firstMessageID, this.getClass());
         }
@@ -144,7 +154,7 @@ public class DatabaseGame extends SQLiteAssetHelper {
         String sqlTables = "people";
 
         qb.setTables(sqlTables);
-        Cursor c = qb.query(db, null,"ID" + " = " + peopleID,null,null, null,null);
+        Cursor c = qb.query(db, null,"id" + " = " + peopleID,null,null, null,null);
 
         String name = null;
         if(c.getCount() > 0) {

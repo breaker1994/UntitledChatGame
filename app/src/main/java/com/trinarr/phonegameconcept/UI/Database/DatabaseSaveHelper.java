@@ -34,7 +34,9 @@ public class DatabaseSaveHelper extends SQLiteOpenHelper {
                         + "name" + " TEXT, "
                         + "type" + " INTEGER NOT NULL, "
                         + "action_type" + " INTEGER NOT NULL, "
-                        + "action_ID" + " INTEGER NOT NULL "
+                        + "action_id" + " INTEGER NOT NULL, "
+                        + "attachment_id" + " INTEGER, "
+                        + "attachment_type" + " INTEGER"
                         + ")";
 
         db.execSQL(CREATE_TABLE);
@@ -53,10 +55,15 @@ public class DatabaseSaveHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("text", message.message);
         values.put("type", message.type);
-        values.put("name", message.name);
         values.put("action_type", message.actionType);
-        values.put("action_ID", message.actionID);
+        values.put("action_id", message.actionID);
         values.put("message_id", message.messageID);
+        if(message.attachmentID != -1) {
+            values.put("attachment_id", message.attachmentID);
+        }
+        if(message.attachmentType != -1) {
+            values.put("attachment_type", message.attachmentType);
+        }
 
         db.insert(databaseName, null, values);
         db.close();
@@ -74,12 +81,23 @@ public class DatabaseSaveHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 ListItemMessage message = new ListItemMessage();
-                message.name = cursor.getString(cursor.getColumnIndex("name"));
                 message.message = cursor.getString(cursor.getColumnIndex("text"));
                 message.type = cursor.getInt(cursor.getColumnIndex("type"));
+
                 message.actionType = cursor.getInt(cursor.getColumnIndex("action_type"));
-                message.actionID = cursor.getInt(cursor.getColumnIndex("action_ID"));
+                message.actionID = cursor.getInt(cursor.getColumnIndex("action_id"));
+
                 message.messageID = cursor.getInt(cursor.getColumnIndex("message_id"));
+
+                int index = cursor.getColumnIndex("attachment_id");
+                if(!cursor.isNull(index)) {
+                    message.attachmentID = cursor.getInt(index);
+                }
+
+                index = cursor.getColumnIndex("attachment_type");
+                if(!cursor.isNull(index)) {
+                    message.attachmentType = cursor.getInt(index);
+                }
 
                 messages.add(message);
             }
