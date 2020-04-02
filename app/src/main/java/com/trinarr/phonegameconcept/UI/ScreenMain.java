@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.trinarr.phonegameconcept.App;
 import com.trinarr.phonegameconcept.R;
 import com.trinarr.phonegameconcept.UI.Database.DatabaseGame;
 import com.trinarr.phonegameconcept.UI.Database.DatabaseSaveHelper;
@@ -59,9 +60,10 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
 
                 ListItemChats item = graphlistArray.get(position);
 
+                App.peopleID = item.peopleID;
+                App.chatID = item.chatID;
+
                 Intent intent = new Intent(ScreenMain.this, ScreenChat.class);
-                intent.putExtra("chatID", item.chatID);
-                intent.putExtra("peopleID", item.peopleID);
                 startActivity(intent);
             }
         }, 50);
@@ -100,11 +102,11 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
         DatabaseSaveHelper dbSave;
         if (chats.moveToFirst()) {
             do {
-                //int lastMessageID = chats.getInt(chats.getColumnIndex("last_message_ID"));
-                int peopleID = chats.getInt(chats.getColumnIndex("people_ID"));
+                //int lastMessageID = chats.getInt(chats.getColumnIndex("last_message_id"));
+                int peopleID = chats.getInt(chats.getColumnIndex("people_id"));
 
                 ListItemChats item = new ListItemChats();
-                item.chatID = chats.getInt(chats.getColumnIndex("ID"));
+                item.chatID = chats.getInt(chats.getColumnIndex("id"));
                 item.peopleID = peopleID;
                 item.title = db.getPeople(peopleID);
 
@@ -120,7 +122,7 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
                     }
                 }
                 else {
-                    int lastMessageID = chats.getInt(chats.getColumnIndex("first_message_ID"));
+                    int lastMessageID = chats.getInt(chats.getColumnIndex("first_message_id"));
 
                     ListItemMessage itemMessage = db.getMessage(lastMessageID);
                     item.description = itemMessage.message;

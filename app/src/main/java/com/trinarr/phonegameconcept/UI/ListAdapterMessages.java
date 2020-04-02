@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +16,10 @@ import com.trinarr.phonegameconcept.R;
 import java.util.ArrayList;
 
 public class ListAdapterMessages extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerView.OnItemTouchListener  {
-    private LayoutInflater inflater;
+    private static final int TYPE_MY = 1;
+    private static final int TYPE_PERSON = 2;
+    private static final int TYPE_NEWS = 3;
+
     private OnItemClickListener mListener;
     GestureDetector mGestureDetector;
 
@@ -31,7 +35,6 @@ public class ListAdapterMessages extends RecyclerView.Adapter<RecyclerView.ViewH
     ListAdapterMessages(Context context, final RecyclerView recyclerView, ArrayList<ListItemMessage> history, OnItemClickListener listener) {
         this.context = context;
 
-        inflater = LayoutInflater.from(context);
         mListener = listener;
         objects = history;
 
@@ -56,6 +59,9 @@ public class ListAdapterMessages extends RecyclerView.Adapter<RecyclerView.ViewH
         ListItemMessage item = objects.get(position);
 
         LogManager.log("item: " + item+" "+item.type, this.getClass());
+        if(item.attachmentID != -1) {
+            return TYPE_NEWS;
+        }
 
         return item.type;
     }
@@ -64,9 +70,8 @@ public class ListAdapterMessages extends RecyclerView.Adapter<RecyclerView.ViewH
         View childView = view.findChildViewUnder(e.getX(), e.getY());
         if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
             mListener.onItemClick(childView, view.getChildAdapterPosition(childView));
-            return true;
         }
-        return false;
+        return true;
     }
 
     @Override public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) { }
@@ -75,13 +80,19 @@ public class ListAdapterMessages extends RecyclerView.Adapter<RecyclerView.ViewH
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
 
-        if(viewType == ListItemMessage.TYPE_MY) {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_chat_my, parent, false);
-            return new ViewHolderMessageMy(view);
-        }
-        else {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_chat_person, parent, false);
-            return new ViewHolderMessagePerson(view);
+        switch(viewType) {
+            case TYPE_MY: {
+                view = LayoutInflater.from(context).inflate(R.layout.list_item_chat_my, parent, false);
+                return new ViewHolderMessageMy(view);
+            }
+            case TYPE_PERSON: default: {
+                view = LayoutInflater.from(context).inflate(R.layout.list_item_chat_person, parent, false);
+                return new ViewHolderMessagePerson(view);
+            }
+            case TYPE_NEWS: {
+                view = LayoutInflater.from(context).inflate(R.layout.list_item_chat_person_news, parent, false);
+                return new ViewHolderMessageNews(view);
+            }
         }
     }
 
@@ -89,15 +100,20 @@ public class ListAdapterMessages extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ListItemMessage item = objects.get(position);
 
+        if(item.attachmentID != -1) {
+            ViewHolderMessageNews holderV = (ViewHolderMessageNews) holder;
+            holderV.message.setText(item.message);
+            return;
+        }
+
         if(item.type == ListItemMessage.TYPE_MY) {
             ViewHolderMessageMy holderV = (ViewHolderMessageMy) holder;
             holderV.message.setText(item.message);
+            return;
         }
-        else {
-            ViewHolderMessagePerson holderV = (ViewHolderMessagePerson) holder;
-            holderV.name.setText(item.name);
-            holderV.message.setText(item.message);
-        }
+
+        ViewHolderMessagePerson holderV = (ViewHolderMessagePerson) holder;
+        holderV.message.setText(item.message);
     }
 
     @Override
@@ -109,13 +125,24 @@ public class ListAdapterMessages extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onRequestDisallowInterceptTouchEvent (boolean disallowIntercept){}
 
     static class ViewHolderMessagePerson extends RecyclerView.ViewHolder {
-        TextView name, message;
+        TextView message;
 
         public ViewHolderMessagePerson(View itemView) {
             super(itemView);
 
-            name = itemView.findViewById(R.id.name);
             message = itemView.findViewById(R.id.message);
+        }
+    }
+
+    static class ViewHolderMessageNews extends RecyclerView.ViewHolder {
+        TextView message;
+        LinearLayout newsBlock;
+
+        public ViewHolderMessageNews(View itemView) {
+            super(itemView);
+
+            message = itemView.findViewById(R.id.message);
+            newsBlock = itemView.findViewById(R.id.newsBlock);
         }
     }
 

@@ -1,6 +1,5 @@
 package com.trinarr.phonegameconcept.UI;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.trinarr.phonegameconcept.App;
 import com.trinarr.phonegameconcept.R;
 import com.trinarr.phonegameconcept.UI.Database.DatabaseGame;
 import com.trinarr.phonegameconcept.UI.Database.DatabaseSaveHelper;
@@ -27,10 +27,7 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
     private DatabaseGame db = null;
     private DatabaseSaveHelper dbSave = null;
 
-    private int chatID, peopleID;
-
     private String peopleName = null;
-    private String myName = "Я";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,21 +41,16 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
         parentLayout.addView(blockHeader, 0);
         blockHeader.setBackButton();
 
-        Intent intent = getIntent();
-        chatID = intent.getIntExtra("chatID", -1);
-        peopleID = intent.getIntExtra("peopleID", -1);
-        if(chatID == -1 || peopleID == -1) {
-            return;
-        }
+        blockHeader.setAvatar(App.peopleID);
 
         db = new DatabaseGame(this);
-        peopleName = db.getPeople(peopleID);
+        peopleName = db.getPeople(App.peopleID);
         blockHeader.setHeaderText(peopleName);
 
         RecyclerView answersList = findViewById(R.id.chatVariantsList);
         answersList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        dbSave = new DatabaseSaveHelper(this, "messages_"+chatID);
+        dbSave = new DatabaseSaveHelper(this, "messages_"+App.chatID);
         messages = dbSave.getAllMessages();
 
         RecyclerView messageList = findViewById(R.id.recycleView);
@@ -80,8 +72,6 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
 
         if(idName.contains("blockMessage")) {
             LogManager.log("click message "+idName, this.getClass());
-
-
         }
         else {
             LogManager.log("click answer "+idName, this.getClass());
@@ -90,9 +80,8 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
 
             ListItemMessage itemMessage = new ListItemMessage();
             itemMessage.type = ListItemMessage.TYPE_MY;
-            //(itemMessage.name = myName;
             itemMessage.message = itemAnswer.message;
-            itemMessage.actionType = ListItemMessage.ACTION_NEXT_MESSAGE;
+            itemMessage.actionType = ListItemMessage.ACTION_MESSAGE;
             itemMessage.actionID = itemAnswer.actionID;
 
             dbSave.addMessage(itemMessage);
@@ -113,7 +102,6 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
     private void getNextMessage(int messageID) {
         ListItemMessage itemMessage = db.getMessage(messageID);
         itemMessage.type = ListItemMessage.TYPE_PERSON;
-        itemMessage.name = peopleName;
 
         dbSave.addMessage(itemMessage);
         messages.add(itemMessage);
@@ -133,7 +121,7 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
         }
 
 
-        if(item.actionType == ListItemMessage.ACTION_NEXT_MESSAGE) {
+        if(item.actionType == ListItemMessage.ACTION_MESSAGE) {
             getNextMessage(item.actionID);
             forceChat();
         }
@@ -157,7 +145,7 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
     public void initDialog() {
         if(messages.size() == 0) {
             LogManager.log("get First Message", this.getClass());
-            getNextMessage(db.getFirstMessageID(chatID));
+            getNextMessage(db.getFirstMessageID(App.chatID));
         }
         else {
             LogManager.log("Not first time! "+messages.size(), this.getClass());
