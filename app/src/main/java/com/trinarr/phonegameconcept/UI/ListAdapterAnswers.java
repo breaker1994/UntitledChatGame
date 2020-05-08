@@ -16,19 +16,19 @@ import java.util.ArrayList;
 
 public class ListAdapterAnswers extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerView.OnItemTouchListener  {
     private LayoutInflater inflater;
-    private OnItemClickListener mListener;
+    private OnAnswerClickListener mListener;
     GestureDetector mGestureDetector;
 
     private Context context;
 
     private ArrayList<ListItemAnswer> objects;
 
-    public interface OnItemClickListener {
-        void onItemClick(View view, int position);
+    public interface OnAnswerClickListener {
+        void OnAnswerClick(View view, int position);
         void onLongItemClick(View view, int position);
     }
 
-    ListAdapterAnswers(Context context, final RecyclerView recyclerView, ArrayList<ListItemAnswer> history, OnItemClickListener listener) {
+    ListAdapterAnswers(Context context, final RecyclerView recyclerView, ArrayList<ListItemAnswer> history, OnAnswerClickListener listener) {
         this.context = context;
 
         inflater = LayoutInflater.from(context);
@@ -54,7 +54,7 @@ public class ListAdapterAnswers extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
         View childView = view.findChildViewUnder(e.getX(), e.getY());
         if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
-            mListener.onItemClick(childView, view.getChildAdapterPosition(childView));
+            mListener.OnAnswerClick(childView, view.getChildAdapterPosition(childView));
             return true;
         }
         return false;

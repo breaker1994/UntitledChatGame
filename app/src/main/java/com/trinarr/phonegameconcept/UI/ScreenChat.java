@@ -16,7 +16,7 @@ import com.trinarr.phonegameconcept.UI.Database.DatabaseSaveHelper;
 
 import java.util.ArrayList;
 
-public class ScreenChat extends AppCompatActivity implements ListAdapterMessages.OnItemClickListener, ListAdapterAnswers.OnItemClickListener{
+public class ScreenChat extends AppCompatActivity implements ListAdapterMessages.OnItemClickListener, ListAdapterAnswers.OnAnswerClickListener{
     private ArrayList<ListItemMessage> messages = new ArrayList<>();
     private ArrayList<ListItemAnswer> answers = new ArrayList<>();
 
@@ -68,30 +68,28 @@ public class ScreenChat extends AppCompatActivity implements ListAdapterMessages
     public void onItemClick(View view, int position) {
         LogManager.log("onItemClick  "+position, this.getClass());
 
-        String idName = getResources().getResourceName(view.getId());
+        LogManager.log("click message "+position, this.getClass());
+    }
 
-        if(idName.contains("blockMessage")) {
-            LogManager.log("click message "+idName, this.getClass());
-        }
-        else {
-            LogManager.log("click answer "+idName, this.getClass());
+    @Override
+    public void OnAnswerClick(View view, int position) {
+        LogManager.log("OnAnswerClick  "+position, this.getClass());
 
-            ListItemAnswer itemAnswer = answers.get(position);
+        ListItemAnswer itemAnswer = answers.get(position);
 
-            ListItemMessage itemMessage = new ListItemMessage();
-            itemMessage.type = ListItemMessage.TYPE_MY;
-            itemMessage.message = itemAnswer.message;
-            itemMessage.actionType = ListItemMessage.ACTION_MESSAGE;
-            itemMessage.actionID = itemAnswer.actionID;
+        ListItemMessage itemMessage = new ListItemMessage();
+        itemMessage.type = ListItemMessage.TYPE_MY;
+        itemMessage.message = itemAnswer.message;
+        itemMessage.actionType = ListItemMessage.ACTION_MESSAGE;
+        itemMessage.actionID = itemAnswer.actionID;
 
-            dbSave.addMessage(itemMessage);
-            messages.add(itemMessage);
+        dbSave.addMessage(itemMessage);
+        messages.add(itemMessage);
 
-            getNextMessage(itemAnswer.actionID);
+        getNextMessage(itemAnswer.actionID);
 
-            answers.clear();
-            listAdapterAnswers.notifyDataSetChanged();
-        }
+        answers.clear();
+        listAdapterAnswers.notifyDataSetChanged();
     }
 
     @Override
