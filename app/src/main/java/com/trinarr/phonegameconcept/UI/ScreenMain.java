@@ -112,6 +112,7 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
 
                 dbSave = new DatabaseSaveHelper(this, "messages_"+item.chatID);
                 ArrayList<ListItemMessage> messages = dbSave.getAllMessages();
+
                 if(messages.size()>0) {
                     ListItemMessage listItemMessage = messages.get(messages.size()-1);
                     if(listItemMessage.type == ListItemMessage.TYPE_MY) {
@@ -120,15 +121,18 @@ public class ScreenMain extends AppCompatActivity implements ListAdapterChats.On
                     else {
                         item.description = listItemMessage.message;
                     }
+                    graphlistArray.add(item);
                 }
                 else {
-                    int lastMessageID = chats.getInt(chats.getColumnIndex("first_message_id"));
+                    if(item.chatID == 1) {
+                        int lastMessageID = chats.getInt(chats.getColumnIndex("first_message_id"));
 
-                    ListItemMessage itemMessage = db.getMessage(lastMessageID);
-                    item.description = itemMessage.message;
+                        ListItemMessage itemMessage = db.getMessage(lastMessageID);
+                        item.description = itemMessage.message;
+
+                        graphlistArray.add(item);
+                    }
                 }
-
-                graphlistArray.add(item);
             }
             while (chats.moveToNext());
         }
