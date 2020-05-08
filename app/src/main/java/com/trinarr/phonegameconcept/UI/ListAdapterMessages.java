@@ -70,8 +70,9 @@ public class ListAdapterMessages extends RecyclerView.Adapter<RecyclerView.ViewH
         View childView = view.findChildViewUnder(e.getX(), e.getY());
         if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
             mListener.onItemClick(childView, view.getChildAdapterPosition(childView));
+            //return true;
         }
-        return true;
+        return false;
     }
 
     @Override public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) { }
